@@ -12,13 +12,11 @@ import (
 
 const (
 	EnvHostAddress   = "ESPHOME_ADDRESS"
-	EnvPassword      = "ESPHOME_PASSWORD"
 	EnvEncryptionKey = "ESPHOME_ENCRYPTION_KEY"
 )
 
 var (
 	HostAddressFlag   = flag.String("address", "", "esphome node hostname or IP with port. example: my_esphome.local:6053")
-	PasswordFlag      = flag.String("password", "", "esphome node API password")
 	EncryptionKeyFlag = flag.String("encryption-key", "", "esphome node API encryption key")
 	TimeoutFlag       = flag.Duration("timeout", 10*time.Second, "communication timeout")
 )
@@ -35,11 +33,6 @@ func GetClient(handlerFunc func(msg proto.Message)) (*esphome.Client, error) {
 		}
 	}
 
-	// update password
-	if *PasswordFlag == "" {
-		*PasswordFlag = os.Getenv(EnvPassword)
-	}
-
 	// update encryption key
 	if *EncryptionKeyFlag == "" {
 		*EncryptionKeyFlag = os.Getenv(EnvEncryptionKey)
@@ -51,11 +44,6 @@ func GetClient(handlerFunc func(msg proto.Message)) (*esphome.Client, error) {
 
 	client, err := esphome.GetClient("mycontroller.org", *HostAddressFlag, *EncryptionKeyFlag, *TimeoutFlag, handlerFunc)
 	if err != nil {
-		return nil, err
-	}
-
-	if err = client.Login(*PasswordFlag); err != nil {
-		_ = client.Close()
 		return nil, err
 	}
 

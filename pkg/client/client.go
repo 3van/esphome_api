@@ -68,7 +68,7 @@ func GetClient(clientID, address, encryptionKey string, timeout time.Duration, c
 
 // Close the client
 func (c *Client) Close() error {
-	_, err := c.SendAndWaitForResponse(&api.DisconnectRequest{}, api.DisconnectResponseTypeID)
+	_, err := c.SendAndWaitForResponse(&api.DisconnectRequest{}, api.TypeID(&api.DisconnectResponse{}))
 	select {
 	case c.stopChan <- true:
 	default:
@@ -80,7 +80,7 @@ func (c *Client) Close() error {
 func (c *Client) Hello() (*types.HelloResponse, error) {
 	response, err := c.SendAndWaitForResponse(&api.HelloRequest{
 		ClientInfo: c.ID,
-	}, api.HelloResponseTypeID)
+	}, api.TypeID(&api.HelloResponse{}))
 	if err != nil {
 		return nil, err
 	}
@@ -96,30 +96,9 @@ func (c *Client) Hello() (*types.HelloResponse, error) {
 	}, nil
 }
 
-// Login func
-func (c *Client) Login(password string) error {
-	_, err := c.Hello()
-	if err != nil {
-		return err
-	}
-
-	message, err := c.SendAndWaitForResponse(&api.ConnectRequest{
-		Password: password,
-	}, api.ConnectResponseTypeID)
-	if err != nil {
-		return err
-	}
-	connectResponse := message.(*api.ConnectResponse)
-	if connectResponse.InvalidPassword {
-		return types.ErrPassword
-	}
-
-	return nil
-}
-
 // Ping func
 func (c *Client) Ping() error {
-	_, err := c.SendAndWaitForResponse(&api.PingRequest{}, api.PingResponseTypeID)
+	_, err := c.SendAndWaitForResponse(&api.PingRequest{}, api.TypeID(&api.PingResponse{}))
 	return err
 }
 
@@ -138,14 +117,13 @@ func (c *Client) LastMessageAt() time.Time {
 
 // DeviceInfo queries the ESPHome device information.
 func (c *Client) DeviceInfo() (*types.DeviceInfo, error) {
-	message, err := c.SendAndWaitForResponse(&api.DeviceInfoRequest{}, api.DeviceInfoResponseTypeID)
+	message, err := c.SendAndWaitForResponse(&api.DeviceInfoRequest{}, api.TypeID(&api.DeviceInfoResponse{}))
 	if err != nil {
 		return nil, err
 	}
 
 	info := message.(*api.DeviceInfoResponse)
 	return &types.DeviceInfo{
-		UsesPassword:    info.UsesPassword,
 		Name:            info.Name,
 		MacAddress:      info.MacAddress,
 		EsphomeVersion:  info.EsphomeVersion,
@@ -219,7 +197,6 @@ func (c *Client) isExternal(message proto.Message) bool {
 	case
 		*api.PingResponse,
 		*api.HelloResponse,
-		*api.ConnectResponse,
 		*api.DeviceInfoResponse,
 		*api.DisconnectResponse:
 		return false
@@ -240,10 +217,6 @@ func (c *Client) handleInternal(message proto.Message) bool {
 
 	case *api.HelloRequest:
 		_ = c.Send(&api.HelloResponse{})
-		return true
-
-	case *api.ConnectRequest:
-		_ = c.Send(&api.ConnectResponse{})
 		return true
 
 	}

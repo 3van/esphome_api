@@ -81,12 +81,6 @@ func GetClient(cfg *cliTY.DeviceConfig, callBackFunc TY.CallBackFunc) (*client.C
 	if err != nil {
 		return nil, err
 	}
-	if cfg.GetPassword() != "" {
-		err = _client.Login(cfg.GetPassword())
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	return _client, nil
 }
@@ -170,7 +164,6 @@ func RemoveDevice(address string) {
 }
 
 func AddDevice(newDevice *cliTY.DeviceConfig) {
-	newDevice.EncodePassword()
 	devices := make([]cliTY.DeviceConfig, 0)
 	for _, device := range CONFIG.Devices {
 		if device.Address == newDevice.Address {

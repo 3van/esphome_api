@@ -9,15 +9,13 @@ import (
 )
 
 var (
-	devicePassword      string
 	deviceEncryptionKey string
 	deviceTimeout       time.Duration
 )
 
 func init() {
 	AddCommand(loginCmd)
-	loginCmd.Flags().StringVar(&devicePassword, "password", "", "Password to login into esphome device")
-	loginCmd.Flags().StringVar(&deviceEncryptionKey, "encryption-key", "", "Encryption key to login into esphome device")
+	loginCmd.Flags().StringVar(&deviceEncryptionKey, "encryption-key", "", "API encryption key for the esphome device")
 	loginCmd.Flags().DurationVar(&deviceTimeout, "timeout", 10*time.Second, "esphome device communication timeout")
 
 	AddCommand(logoutCmd)
@@ -26,20 +24,16 @@ func init() {
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "Log in to a esphome device",
-	Example: `  # login to esphome device without password and encryption key
+	Example: `  # login to esphome device without an encryption key
   esphomectl login my_esphome.local:6053
 
-  # login to esphome device with password
-  esphomectl login my_esphome.local:6053 --password my_secret
-
-  # login to esphome device with encryption key
+  # login to esphome device with an API encryption key
   esphomectl login my_esphome.local:6053 --encryption-key my_encryption_key
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		deviceCfg := &cliTY.DeviceConfig{
 			Address:       args[0],
-			Password:      devicePassword,
 			EncryptionKey: deviceEncryptionKey,
 			Timeout:       deviceTimeout,
 		}
@@ -62,7 +56,6 @@ var loginCmd = &cobra.Command{
 				MacAddress:      deviceInfo.MacAddress,
 				EsphomeVersion:  deviceInfo.EsphomeVersion,
 				CompilationTime: deviceInfo.CompilationTime,
-				UsesPassword:    deviceInfo.UsesPassword,
 				HasDeepSleep:    deviceInfo.HasDeepSleep,
 				StatusOn:        time.Now(),
 			}

@@ -10,7 +10,6 @@ import (
 
 // Error types
 var (
-	ErrPassword              = errors.New("esphome_api: invalid password")
 	ErrCommunicationTimeout  = errors.New("esphome_api: communication timeout")
 	ErrConnRequireEncryption = errors.New("esphome_api: connection requires encryption")
 )
@@ -25,13 +24,12 @@ type DeviceInfo struct {
 	MacAddress      string
 	EsphomeVersion  string
 	CompilationTime string
-	UsesPassword    bool
 	HasDeepSleep    bool
 }
 
 func (di *DeviceInfo) String() string {
-	return fmt.Sprintf("{name: %v, model:%v, mac_address:%v, esphome_version:%v, compilation_time:%v, uses_password:%v, has_deep_sleep:%v}",
-		di.Name, di.Model, di.MacAddress, di.EsphomeVersion, di.CompilationTime, di.UsesPassword, di.HasDeepSleep)
+	return fmt.Sprintf("{name: %v, model:%v, mac_address:%v, esphome_version:%v, compilation_time:%v, has_deep_sleep:%v}",
+		di.Name, di.Model, di.MacAddress, di.EsphomeVersion, di.CompilationTime, di.HasDeepSleep)
 }
 
 // LogLevel type
@@ -50,15 +48,14 @@ const (
 
 // LogEntry of a message
 type LogEntry struct {
-	Level      LogLevel
-	Tag        string
-	Message    string
-	SendFailed bool
+	Level   LogLevel
+	Tag     string
+	Message string
 }
 
 func (le *LogEntry) String() string {
-	return fmt.Sprintf("{level: %v, tag:%v, send_failed:%v, message:[%v]}",
-		le.Level, le.Tag, le.SendFailed, le.Message)
+	return fmt.Sprintf("{level: %v, tag:%v, message:[%v]}",
+		le.Level, le.Tag, le.Message)
 }
 
 func GetLogEntry(msg proto.Message) (*LogEntry, error) {
@@ -67,9 +64,8 @@ func GetLogEntry(msg proto.Message) (*LogEntry, error) {
 		return nil, fmt.Errorf("received invalid data type:%T", msg)
 	}
 	log := LogEntry{
-		Level:      LogLevel(entry.Level),
-		Message:    entry.Message,
-		SendFailed: entry.SendFailed,
+		Level:   LogLevel(entry.Level),
+		Message: string(entry.Message),
 	}
 	return &log, nil
 }

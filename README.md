@@ -5,7 +5,7 @@ A Go library to manage [ESPHome](https://esphome.io/) devices.
 This Go library provides a client implementation for interacting with ESPHome
 devices using the native ESPHome API. It enables developers to control and
 monitor ESPHome devices programmatically from Go applications. The library
-offers functionalities for establishing connections, authenticating, sending
+offers functionalities for establishing encrypted API-key connections, sending
 commands, subscribing to state updates, and receiving device information.
 
 ## Installation
@@ -47,17 +47,7 @@ if err != nil {
 defer client.Close()
 ```
 
-### 3. Connect and Authenticate (if required)
-
-```go
-// If your device requires authentication, log in with the password
-password := "YOUR_PASSWORD"
-if err := client.Login(password); err != nil {
-        log.Fatalln(err)
-}
-```
-
-### 4. Send Commands and Receive State Updates
+### 3. Send Commands and Receive State Updates
 
 ```go
 // Example: Subscribe to state updates
@@ -75,7 +65,7 @@ if err := client.Send(&api.LightCommandRequest{
 }
 ```
 
-### 5. Handle Incoming Messages
+### 4. Handle Incoming Messages
 
 ```go
 // Define a handler function to process incoming messages
@@ -105,7 +95,6 @@ tool, which utilizes the `esphome_api` library:
 active: esphome.local:6053
 devices:
     - address: esphome.local:6053
-      password: BASE64/YOUR_ENCODED_PASSWORD
       encryptionKey: YOUR_ENCRYPTION_KEY
       timeout: 10s
       info:
@@ -114,15 +103,8 @@ devices:
           macAddress: AC:BC:32:89:0E:A9
           esphomeVersion: "1.15.0"
           compilationTime: "2023-10-26T10:00:00"
-          usesPassword: true
           hasDeepSleep: false
           statusOn: 2023-10-26T12:00:00+05:30
-```
-
-**Note:** The password is encoded in Base64 format. You can encode your password using the following command:
-
-```bash
-echo -n "YOUR_PASSWORD" | base64
 ```
 
 ## Examples

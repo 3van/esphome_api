@@ -64,7 +64,6 @@ var getDevicesCmd = &cobra.Command{
 			{Title: "mac address", ValuePath: "info.macAddress"},
 			{Title: "version", ValuePath: "info.esphomeVersion"},
 			{Title: "compilation time", ValuePath: "info.compilationTime"},
-			{Title: "uses password", ValuePath: "info.usesPassword"},
 			{Title: "has deep sleep", ValuePath: "info.hasDeepSleep"},
 			{Title: "timeout", ValuePath: "timeout", IsWide: true},
 			{Title: "status on", ValuePath: "info.statusOn", DisplayStyle: printer.DisplayStyleRelativeTime},
